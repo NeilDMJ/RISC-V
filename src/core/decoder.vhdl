@@ -2,16 +2,16 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity Decoder is
+entity decoder is
     port (
         instr       : in STD_LOGIC_VECTOR(31 downto 0); --instruccion completa de 32 bits
         we          : out STD_LOGIC;                     --write enable
         alu_src     : out STD_LOGIC;                     --selector de fuente para ALU (0=registro, 1=inmediato)
         op          : out STD_LOGIC_VECTOR(3 downto 0)   --operacion a realizar en la ALU
     );
-end Decoder;
+end decoder;
 
-architecture Decoder of Decoder is --señales internas
+architecture behavioral of decoder is --señales internas
     signal opcode : std_logic_vector(6 downto 0);
     signal func3  : std_logic_vector(2 downto 0);
     signal func7  : std_logic_vector(6 downto 0);
@@ -100,4 +100,4 @@ begin
                         
     end process;
 
-end Decoder;
+end behavioral;

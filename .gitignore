@@ -1,0 +1,31 @@
+# Archivos de compilación GHDL
+*.o
+*.cf
+work-obj*.cf
+
+# Archivos de simulación
+*.vcd
+*.ghw
+*.wave
+
+# Carpeta de simulación
+sim/*.vcd
+sim/*.ghw
+
+# Archivos temporales
+*~
+*.bak
+*.swp
+.DS_Store
+
+# Carpetas de build
+build/
+out/
+
+# Archivos de IDEs
+.vscode/
+.idea/
+*.code-workspace
+
+# Logs
+*.log

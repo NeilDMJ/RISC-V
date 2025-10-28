@@ -1,0 +1,30 @@
+[*]
+[*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
+[*] 
+[dumpfile] "../sim/wave_typei.vcd"
+[savefile] "wave_typei.gtkw"
+[timestart] 0
+[size] 1920 1080
+[pos] -1 -1
+*-18.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[treeopen] top.tb_typei.
+[sst_width] 223
+[signals_width] 246
+[sst_expanded] 1
+[sst_vpaned_height] 500
+
+@28
+#{Señales de Control} top.tb_typei.we top.tb_typei.alu_src
+@22
+#{Instrucción} top.tb_typei.instr[31:0]
+@28
+#{Operación ALU} top.tb_typei.op[3:0]
+@22
+#{Operando 1 (rs1)} top.tb_typei.do1[31:0]
+#{Operando 2 Registro} top.tb_typei.do2_reg[31:0]
+#{Inmediato Extendido} top.tb_typei.imm_ext[31:0]
+#{Operando 2 ALU (MUX)} top.tb_typei.do2_alu[31:0]
+#{Resultado ALU} top.tb_typei.resultado[31:0]
+[pattern_trace] 1
+[pattern_trace] 0

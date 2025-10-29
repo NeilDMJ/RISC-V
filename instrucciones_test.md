@@ -59,3 +59,8 @@ imm[11:5] (7) | rs2 (5) | rs1 (5) | funct3 (3) | imm[4:0] (5) | opcode (7)
 - Las instrucciones Store usan diferentes offsets (0 y 8)
 - Los valores inmediatos son diferentes en cada instrucción tipo I
 - Todas las instrucciones están codificadas según el estándar RISC-V RV32I
+
+```
+./scripts/run_complete.sh
+gtkwave sim/riscv_complete.vcd scripts/wave_complete.gtkw
+```

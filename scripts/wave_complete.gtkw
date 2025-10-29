@@ -1,0 +1,61 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Tue Oct 28 2025
+[*]
+[dumpfile] "/home/dante/Documents/Universidad/Arquitectura_Computadoras/RISC-V/sim/riscv_complete.vcd"
+[savefile] "/home/dante/Documents/Universidad/Arquitectura_Computadoras/RISC-V/scripts/wave_complete.gtkw"
+[timestart] 0
+[size] 1920 1080
+[pos] -1 -1
+*-18.0 0 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] riscv_complete_tb.
+[sst_width] 230
+[signals_width] 250
+[sst_expanded] 1
+[sst_vpaned_height] 400
+@28
+riscv_complete_tb.clk
+@200
+-
+@22
+riscv_complete_tb.instruction[31:0]
+@200
+-
+-Control Signals
+@28
+riscv_complete_tb.reg_we
+riscv_complete_tb.mem_we
+riscv_complete_tb.alu_src
+riscv_complete_tb.mem_to_reg
+riscv_complete_tb.imm_src
+@22
+riscv_complete_tb.alu_op[3:0]
+@200
+-
+-Register File
+@22
+riscv_complete_tb.rs1[4:0]
+riscv_complete_tb.rs2[4:0]
+riscv_complete_tb.rd[4:0]
+riscv_complete_tb.rs1_data[31:0]
+riscv_complete_tb.rs2_data[31:0]
+riscv_complete_tb.write_data[31:0]
+@200
+-
+-ALU
+@22
+riscv_complete_tb.alu_operand2[31:0]
+riscv_complete_tb.alu_result[31:0]
+@200
+-
+-Memory
+@22
+riscv_complete_tb.mem_data_out[31:0]
+@200
+-
+-Immediate
+@22
+riscv_complete_tb.imm_extended[31:0]
+riscv_complete_tb.imm_s[31:0]
+[pattern_trace] 1
+[pattern_trace] 0

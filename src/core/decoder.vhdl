@@ -4,10 +4,13 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity decoder is
     port (
-        instr       : in STD_LOGIC_VECTOR(31 downto 0); --instruccion completa de 32 bits
-        we          : out STD_LOGIC;                     --write enable
-        alu_src     : out STD_LOGIC;                     --selector de fuente para ALU (0=registro, 1=inmediato)
-        op          : out STD_LOGIC_VECTOR(3 downto 0)   --operacion a realizar en la ALU
+        instr       : in STD_LOGIC_VECTOR(31 downto 0);  --instruccion completa de 32 bits
+        reg_we      : out STD_LOGIC;                      --write enable para banco de registros
+        mem_we      : out STD_LOGIC;                      --write enable para memoria de datos
+        alu_src     : out STD_LOGIC;                      --selector de fuente para ALU (0=registro, 1=inmediato)
+        mem_to_reg  : out STD_LOGIC;                      --selector de dato a escribir en registro (0=ALU, 1=memoria)
+        imm_src     : out STD_LOGIC;                      --selector de formato de inmediato (0=tipo I, 1=tipo S)
+        op          : out STD_LOGIC_VECTOR(3 downto 0)    --operacion a realizar en la ALU
     );
 end decoder;
 
@@ -23,12 +26,20 @@ begin
 
     process(opcode,func3,func7)
     begin
-        we <= '0';
-        alu_src <= '0'; --por defecto usar registro
-        op <= "1111"; --operacion no definida
+        --valores por defecto
+        reg_we <= '0';      --no escribir en registros
+        mem_we <= '0';      --no escribir en memoria
+        alu_src <= '0';     --usar registro
+        mem_to_reg <= '0';  --dato viene de la ALU
+        imm_src <= '0';     --formato tipo I
+        op <= "1111";       --operacion no definida
+        
         case opcode is 
             when "0110011" => --implementar tipo R (opcode no cambia)
-                we <= '1'; --activar la escritura en el banco de registros
+                reg_we <= '1'; --activar la escritura en el banco de registros
+                mem_we <= '0'; --no escribir en memoria
+                alu_src <= '0'; --usar registro (rs2)
+                mem_to_reg <= '0'; --escribir resultado de ALU en registro
                 case func3 is 
                     when "000" => --casos para suma y resta 
                         case func7 is
@@ -64,8 +75,11 @@ begin
                         op <= "1111"; --operacion no definida
                 end case;
             when "0010011" => --implementar tipo I (operaciones aritmeticas con inmediatos)
-                we <= '1'; --activar la escritura en el banco de registros
+                reg_we <= '1'; --activar la escritura en el banco de registros
+                mem_we <= '0'; --no escribir en memoria
                 alu_src <= '1'; --usar inmediato en lugar de registro
+                mem_to_reg <= '0'; --escribir resultado de ALU en registro
+                imm_src <= '0'; --formato tipo I
                 case func3 is 
                     when "000" => --ADDI (suma con inmediato)
                         op <= "0000"; --suma
@@ -93,8 +107,45 @@ begin
                     when others =>
                         op <= "1111"; --operacion no definida
                 end case;
+            when "0000011" => --implementar tipo L (instrucciones de carga/load)
+                reg_we <= '1'; --activar la escritura en el banco de registros (se escribe el dato leido de memoria)
+                mem_we <= '0'; --no escribir en memoria (solo leer)
+                alu_src <= '1'; --usar inmediato para calcular la direccion de memoria
+                mem_to_reg <= '1'; --escribir dato de memoria en registro
+                imm_src <= '0'; --formato tipo I
+                case func3 is 
+                    when "000" => --LB (load byte con extension de signo)
+                        op <= "0000"; --suma (rs1 + inmediato para calcular direccion)
+                    when "001" => --LH (load halfword con extension de signo)
+                        op <= "0000"; --suma
+                    when "010" => --LW (load word)
+                        op <= "0000"; --suma
+                    when "100" => --LBU (load byte sin extension de signo)
+                        op <= "0000"; --suma
+                    when "101" => --LHU (load halfword sin extension de signo)
+                        op <= "0000"; --suma
+                    when others =>
+                        op <= "1111"; --operacion no definida
+                end case;
+            when "0100011" => --implementar tipo S (instrucciones de almacenamiento/store)
+                reg_we <= '0'; --NO escribir en el banco de registros (solo se escribe en memoria)
+                mem_we <= '1'; --activar escritura en memoria
+                alu_src <= '1'; --usar inmediato para calcular la direccion de memoria
+                mem_to_reg <= '0'; --no importa (no se escribe en registro)
+                imm_src <= '1'; --formato tipo S
+                case func3 is 
+                    when "000" => --SB (store byte)
+                        op <= "0000"; --suma (rs1 + inmediato para calcular direccion)
+                    when "001" => --SH (store halfword)
+                        op <= "0000"; --suma
+                    when "010" => --SW (store word)
+                        op <= "0000"; --suma
+                    when others =>
+                        op <= "1111"; --operacion no definida
+                end case;
             when others =>
-                we <= '0';
+                reg_we <= '0';
+                mem_we <= '0';
                 op <= "1111";
         end case;              
                         

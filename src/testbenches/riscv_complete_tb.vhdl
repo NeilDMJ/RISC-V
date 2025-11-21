@@ -14,7 +14,7 @@ architecture testbench of riscv_complete_tb is
             mem_we      : out STD_LOGIC;
             alu_src     : out STD_LOGIC;
             mem_to_reg  : out STD_LOGIC;
-            imm_src     : out STD_LOGIC;
+            imm_src     : out STD_LOGIC_VECTOR(1 downto 0);
             op          : out STD_LOGIC_VECTOR(3 downto 0)
         );
     end component;
@@ -39,7 +39,8 @@ architecture testbench of riscv_complete_tb is
             do1 : in STD_LOGIC_VECTOR(31 downto 0);
             do2 : in STD_LOGIC_VECTOR(31 downto 0);
             op  : in STD_LOGIC_VECTOR(3 downto 0);
-            resultado : out STD_LOGIC_VECTOR(31 downto 0)
+            resultado : out STD_LOGIC_VECTOR(31 downto 0);
+            zero : out STD_LOGIC
         );
     end component;
 
@@ -47,6 +48,7 @@ architecture testbench of riscv_complete_tb is
     component ImmExtend is
         port (
             instr   : in STD_LOGIC_VECTOR(31 downto 0);
+            imm_src : in STD_LOGIC_VECTOR(1 downto 0);
             imm_ext : out STD_LOGIC_VECTOR(31 downto 0)
         );
     end component;
@@ -67,7 +69,8 @@ architecture testbench of riscv_complete_tb is
     signal instruction : STD_LOGIC_VECTOR(31 downto 0);
     
     -- Señales del decoder
-    signal reg_we, mem_we, alu_src, mem_to_reg, imm_src : STD_LOGIC;
+    signal reg_we, mem_we, alu_src, mem_to_reg : STD_LOGIC;
+    signal imm_src : STD_LOGIC_VECTOR(1 downto 0);
     signal alu_op : STD_LOGIC_VECTOR(3 downto 0);
     
     -- Señales del banco de registros
@@ -76,6 +79,7 @@ architecture testbench of riscv_complete_tb is
     
     -- Señales de la ALU
     signal alu_operand2, alu_result : STD_LOGIC_VECTOR(31 downto 0);
+    signal alu_zero : STD_LOGIC;
     
     -- Señales de extension de inmediato
     signal imm_extended : STD_LOGIC_VECTOR(31 downto 0);
@@ -146,12 +150,13 @@ begin
     u_immext: ImmExtend
         port map (
             instr   => instruction,
+            imm_src => imm_src,
             imm_ext => imm_extended
         );
 
     -- Multiplexor para seleccionar operando 2 de la ALU (registro o inmediato)
-    alu_operand2 <= imm_extended when (alu_src = '1' and imm_src = '0') else
-                    imm_s when (alu_src = '1' and imm_src = '1') else
+    alu_operand2 <= imm_extended when (alu_src = '1' and (imm_src = "00" or imm_src = "10")) else
+                    imm_s when (alu_src = '1' and imm_src = "01") else
                     rs2_data;
 
     -- Instanciacion de la ALU
@@ -160,7 +165,8 @@ begin
             do1       => rs1_data,
             do2       => alu_operand2,
             op        => alu_op,
-            resultado => alu_result
+            resultado => alu_result,
+            zero      => alu_zero
         );
 
     -- Instanciacion de Memoria de Datos

@@ -4,24 +4,20 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity ImmExtend is
     port (
-        instr       : in STD_LOGIC_VECTOR(31 downto 0);  -- instruccion completa
-        imm_ext     : out STD_LOGIC_VECTOR(31 downto 0)  -- inmediato extendido a 32 bits
+        imm_in  : in  STD_LOGIC_VECTOR(11 downto 0);  -- inmediato de 12 bits
+        imm_ext : out STD_LOGIC_VECTOR(31 downto 0)   -- inmediato extendido a 32 bits
     );
 end ImmExtend;
 
 architecture Behavioral of ImmExtend is
-    signal imm_12bit : STD_LOGIC_VECTOR(11 downto 0);
 begin
-    -- Tipo I: inmediato de 12 bits en bits [31:20]
-    imm_12bit <= instr(31 downto 20);
-    
-    -- Extension de signo: replicar el bit de signo (bit 31) en los 20 bits superiores
-    process(imm_12bit)
+    process(imm_in)
     begin
-        if imm_12bit(11) = '1' then
-            imm_ext <= X"FFFFF" & imm_12bit;  -- Numero negativo
+        -- Extensión de signo del inmediato de 12 bits a 32 bits
+        if imm_in(11) = '1' then
+            imm_ext <= (31 downto 12 => '1') & imm_in;  -- numero negativo
         else
-            imm_ext <= X"00000" & imm_12bit;  -- Numero positivo
+            imm_ext <= (31 downto 12 => '0') & imm_in;  -- numero positivo
         end if;
     end process;
 end Behavioral;

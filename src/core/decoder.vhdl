@@ -9,7 +9,7 @@ entity decoder is
         mem_we      : out STD_LOGIC;                      --write enable para memoria de datos
         alu_src     : out STD_LOGIC;                      --selector de fuente para ALU (0=registro, 1=inmediato)
         mem_to_reg  : out STD_LOGIC;                      --selector de dato a escribir en registro (0=ALU, 1=memoria)
-        imm_src     : out STD_LOGIC;                      --selector de formato de inmediato (0=tipo I, 1=tipo S)
+        imm_src     : out STD_LOGIC_VECTOR(1 downto 0);   --selector de formato de inmediato (00=I, 01=S, 10=B)
         op          : out STD_LOGIC_VECTOR(3 downto 0)    --operacion a realizar en la ALU
     );
 end decoder;
@@ -31,7 +31,7 @@ begin
         mem_we <= '0';      --no escribir en memoria
         alu_src <= '0';     --usar registro
         mem_to_reg <= '0';  --dato viene de la ALU
-        imm_src <= '0';     --formato tipo I
+        imm_src <= "00";    --formato tipo I
         op <= "1111";       --operacion no definida
         
         case opcode is 
@@ -79,7 +79,7 @@ begin
                 mem_we <= '0'; --no escribir en memoria
                 alu_src <= '1'; --usar inmediato en lugar de registro
                 mem_to_reg <= '0'; --escribir resultado de ALU en registro
-                imm_src <= '0'; --formato tipo I
+                imm_src <= "00"; --formato tipo I
                 case func3 is 
                     when "000" => --ADDI (suma con inmediato)
                         op <= "0000"; --suma
@@ -112,7 +112,7 @@ begin
                 mem_we <= '0'; --no escribir en memoria (solo leer)
                 alu_src <= '1'; --usar inmediato para calcular la direccion de memoria
                 mem_to_reg <= '1'; --escribir dato de memoria en registro
-                imm_src <= '0'; --formato tipo I
+                imm_src <= "00"; --formato tipo I
                 case func3 is 
                     when "000" => --LB (load byte con extension de signo)
                         op <= "0000"; --suma (rs1 + inmediato para calcular direccion)
@@ -132,7 +132,7 @@ begin
                 mem_we <= '1'; --activar escritura en memoria
                 alu_src <= '1'; --usar inmediato para calcular la direccion de memoria
                 mem_to_reg <= '0'; --no importa (no se escribe en registro)
-                imm_src <= '1'; --formato tipo S
+                imm_src <= "01"; --formato tipo S
                 case func3 is 
                     when "000" => --SB (store byte)
                         op <= "0000"; --suma (rs1 + inmediato para calcular direccion)
@@ -140,6 +140,28 @@ begin
                         op <= "0000"; --suma
                     when "010" => --SW (store word)
                         op <= "0000"; --suma
+                    when others =>
+                        op <= "1111"; --operacion no definida
+                end case;
+            when "1100011" => --implementar tipo B (instrucciones de salto condicional/branch)
+                reg_we <= '0'; --NO escribir en el banco de registros
+                mem_we <= '0'; --NO escribir en memoria
+                alu_src <= '0'; --usar registro rs2 (comparar rs1 con rs2)
+                mem_to_reg <= '0'; --no importa (no se escribe en registro)
+                imm_src <= "10"; --formato tipo B
+                case func3 is 
+                    when "000" => --BEQ (branch if equal)
+                        op <= "1100"; --comparacion de igualdad
+                    when "001" => --BNE (branch if not equal)
+                        op <= "1101"; --comparacion de desigualdad
+                    when "100" => --BLT (branch if less than, signed)
+                        op <= "1000"; --SLT (reutilizar hardware de comparacion)
+                    when "101" => --BGE (branch if greater or equal, signed)
+                        op <= "1010"; --SGE (comparacion mayor o igual)
+                    when "110" => --BLTU (branch if less than, unsigned)
+                        op <= "1001"; --SLTU (reutilizar hardware de comparacion unsigned)
+                    when "111" => --BGEU (branch if greater or equal, unsigned)
+                        op <= "1011"; --SGEU (comparacion mayor o igual unsigned)
                     when others =>
                         op <= "1111"; --operacion no definida
                 end case;
